@@ -4,7 +4,8 @@
   "description": "You have elected to do a take-home project as a part of your interview for a front-end developer position at Canopy. Your goal is to implement a small project in advance of the interview. Part of your interview we will discuss the implementation details of your solution.",
   "main": "index.js",
   "scripts": {
-    "start": "babel src/index.js --out-file index.js --source-maps --watch"
+    "start": "babel src/index.js --out-file index.js && node index.js",
+    "dev": "babel src/index.js --out-file index.js --source-maps --watch"
   },
   "repository": {
     "type": "git",
