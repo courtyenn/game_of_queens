@@ -1,5 +1,5 @@
 import { Observable, Subscription, of, fromEvent, from, empty, merge, timer, Subject } from 'rxjs';
-import { multicast, flatMap, concat, map, mapTo, switchMap, tap, mergeMap, takeUntil, filter, finalize, scan, pluck, every, mergeAll, withLatestFrom, concatMap } from 'rxjs/operators';
+import { switchMap, takeUntil, filter, scan, pluck } from 'rxjs/operators';
 import axios from 'axios'
 
 const fetchDeck = async () => (await axios.get(`https://deckofcardsapi.com/api/deck/new/shuffle`)).data.deck_id
@@ -35,7 +35,7 @@ const draw = (deckId) => {
 const pollDeck = (deckId, interval = 1000) => {
     const queenSubject$ = new Subject();
     const shutDown$ = new Subject();
-    const timer$ = timer(0, interval).pipe(switchMap(_ => draw(deckId)), takeUntil(testSubj))
+    const timer$ = timer(0, interval).pipe(switchMap(_ => draw(deckId)), takeUntil(shutDown$))
     timer$.subscribe(queenSubject$)
     queenSubject$.pipe(filter(isQueen)).pipe(scan((acc, _) => acc + 1, 0)).pipe(filter(val => val >= 4)).subscribe(x => {
         setTimeout(() => shutDown$.next(), 1) // allow time for other observer to get new update before cancelling
