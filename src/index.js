@@ -33,19 +33,19 @@ const draw = (deckId) => {
 }
 
 const pollDeck = (deckId, interval = 1000) => {
-    let pollSubject = new Subject();
-    let testSubj = new Subject();
-    let timer$ = timer(0, interval).pipe(switchMap(_ => draw(deckId)), takeUntil(testSubj))
-    timer$.subscribe(pollSubject)
-    pollSubject.pipe(filter(isQueen)).pipe(scan((acc, _) => acc + 1, 0)).pipe(filter(val => val >= 4)).subscribe(x => {
-        setTimeout(() => testSubj.next(), 1) // allow time for other observer to get new update before cancelling
+    const queenSubject$ = new Subject();
+    const shutDown$ = new Subject();
+    const timer$ = timer(0, interval).pipe(switchMap(_ => draw(deckId)), takeUntil(testSubj))
+    timer$.subscribe(queenSubject$)
+    queenSubject$.pipe(filter(isQueen)).pipe(scan((acc, _) => acc + 1, 0)).pipe(filter(val => val >= 4)).subscribe(x => {
+        setTimeout(() => shutDown$.next(), 1) // allow time for other observer to get new update before cancelling
     })
-    return pollSubject;
+    return queenSubject$;
 }
 
 export const start = async () => {
     const deckId = await fetchDeck()
-    let cardMap = {
+    const cardMap = {
         SPADES: [],
         HEARTS: [],
         CLUBS: [],
@@ -56,7 +56,7 @@ export const start = async () => {
         cardMap[card.suit].push(card.value)
     }, err => console.error(err), () => {
         Object.keys(cardMap).forEach(suit => {
-            console.log(suit + ': [' + cardMap[suit].sort(sortCards).toString().split(',').join(', ')+ ']')
+            console.log(`${suit}: [${cardMap[suit].sort(sortCards).toString().split(',').join(', ')}]`)
         })
     })
 }
