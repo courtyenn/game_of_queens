@@ -56,7 +56,7 @@ export const start = async () => {
         cardMap[card.suit].push(card.value)
     }, err => console.error(err), () => {
         Object.keys(cardMap).forEach(suit => {
-            console.log(suit + ': [' + cardMap[suit].sort(sortCards).toString()+ ']')
+            console.log(suit + ': [' + cardMap[suit].sort(sortCards).toString().split(',').join(', ')+ ']')
         })
     })
 }
