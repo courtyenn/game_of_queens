@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "babel src/index.js --out-file index.js && node index.js",
-    "dev": "babel src/index.js --out-file index.js --source-maps --watch"
+    "dev": "babel src/index.js --out-file index.js --source-maps --watch",
+    "test": "babel src/index.js --out-file index.js && ava __tests__/"
   },
   "repository": {
     "type": "git",
@@ -22,6 +23,7 @@
     "babel-cli": "^6.26.0",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-env": "^1.7.0",
+    "babel-register": "^6.26.0",
     "sinon": "^6.1.5"
   },
   "babel": {
@@ -51,5 +53,23 @@
     "axios": "^0.18.0",
     "rxjs": "^6.2.2",
     "rxjs-compat": "^6.2.2"
+  },
+  "ava": {
+    "files": [
+      "__tests__/*.js"
+    ],
+    "sources": [
+      "**/*.{js,jsx}",
+      "!index.js"
+    ],
+    "cache": true,
+    "concurrency": 5,
+    "failFast": true,
+    "failWithoutAssertions": false,
+    "tap": true,
+    "compileEnhancements": false,
+    "require": [
+      "babel-register"
+    ]
   }
 }

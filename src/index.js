@@ -1,4 +1,4 @@
-import { Observable, Subscription, of, fromEvent, from, empty, merge, timer, Subject } from 'rxjs';
+import { from, timer, Subject } from 'rxjs';
 import { switchMap, takeUntil, filter, scan, pluck } from 'rxjs/operators';
 import axios from 'axios'
 
@@ -15,10 +15,10 @@ const getCardValue = (...ab) => {
 }
 
 const sortCards = (a, b) => {
-    let [x,y] = getCardValue(a,b)
-    if(x < y)return -1
-    if(x === y)return 0
-    if(x > y)return 1
+    let [x, y] = getCardValue(a, b)
+    if (x < y) return -1
+    if (x === y) return 0
+    if (x > y) return 1
 }
 
 const isQueen = card => {
@@ -51,14 +51,18 @@ export const start = async () => {
         CLUBS: [],
         DIAMONDS: []
     }
-
-    pollDeck(deckId).subscribe(card => {
-        cardMap[card.suit].push(card.value)
-    }, err => console.error(err), () => {
-        Object.keys(cardMap).forEach(suit => {
-            console.log(`${suit}: [${cardMap[suit].sort(sortCards).toString().split(',').join(', ')}]`)
+    const queenPromise = new Promise((resolve, reject) => {
+        pollDeck(deckId).subscribe(card => {
+            cardMap[card.suit].push(card.value)
+        }, err => console.error(err), () => {
+            Object.keys(cardMap).forEach(suit => {
+                console.log(`${suit}: [${cardMap[suit].sort(sortCards).toString().split(',').join(', ')}]`)
+            })
+            resolve()
         })
     })
+
+    return queenPromise
 }
 
 start();
