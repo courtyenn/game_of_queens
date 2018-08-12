@@ -2,7 +2,7 @@ import { from, timer, Subject } from 'rxjs';
 import { switchMap, takeUntil, filter, scan, pluck } from 'rxjs/operators';
 import axios from 'axios'
 
-const fetchDeck = async () => (await axios.get(`https://deckofcardsapi.com/api/deck/new/shuffle`)).data.deck_id
+export const fetchDeck = async () => (await axios.get(`https://deckofcardsapi.com/api/deck/new/shuffle`)).data.deck_id
 
 const getCardValue = (...ab) => {
     const cardValueMap = {
@@ -22,11 +22,11 @@ const sortCards = (a, b) => {
 }
 
 const isQueen = card => {
-    console.log(card.value)
-    return card.value === 'QUEEN'
+    if(card)console.log(card.value)
+    return card && card.value && card.value === 'QUEEN'
 };
 
-const draw = (deckId) => {
+export const draw = (deckId) => {
     const source = from(axios.get(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=2`)).pipe(pluck('data')).pipe(pluck('cards'))
 
     return source.pipe(switchMap(x => x))
@@ -53,17 +53,22 @@ export const start = async () => {
     }
     const queenPromise = new Promise((resolve, reject) => {
         pollDeck(deckId).subscribe(card => {
-            cardMap[card.suit].push(card.value)
+            if (!card || !cardMap[card.suit]) {
+                reject('Bad Card Data')
+            }
+            else {
+                cardMap[card.suit].push(card.value)
+            }
         }, err => console.error(err), () => {
             Object.keys(cardMap).forEach(suit => {
                 console.log(`${suit}: [${cardMap[suit].sort(sortCards).toString().split(',').join(', ')}]`)
             })
-            resolve()
+            resolve(cardMap)
         })
     })
 
     return queenPromise
 }
 
-start();
+// start();
 // start();
